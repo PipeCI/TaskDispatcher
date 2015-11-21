@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace PipeCI.TaskDispatcher.NodeSide.EventArgs
 {
-    public class TaskProcessExecuteFailed : System.EventArgs
+    public class TaskStartBuildingEventArgs : System.EventArgs
     {
         public string Id { get; set; }
-        public string Error { get; set; }
         public DateTime Time { get; set; }
     }
 }

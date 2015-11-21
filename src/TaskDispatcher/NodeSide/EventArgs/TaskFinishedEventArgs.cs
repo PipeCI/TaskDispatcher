@@ -8,5 +8,6 @@ namespace PipeCI.TaskDispatcher.NodeSide.EventArgs
     public class TaskFinishedEventArgs : System.EventArgs
     {
         public string Id { get; set; }
+        public DateTime Time { get; set; }
     }
 }

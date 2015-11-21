@@ -18,18 +18,27 @@ namespace PipeCI.TaskDispatcher.NodeSide
             this.ServerPort = Convert.ToInt32(config["Port"]);
             this.MaxThreadsCount = Convert.ToInt32(config["MaxThreadsCount"]);
             this.PrivateKey = config["PrivateKey"];
-            CITask.OnTaskProcessOutputed += (sender, e) => 
+            OnTaskPushed += NodeManager_OnTaskPushed;
+            CITask.OnTaskProcessOutputed += (sender, e) => Task.Factory.StartNew(() =>
             {
                 Output(e);
-            };
-            CITask.OnTaskProcessExecuteFailed += (sender, e) =>
+            });
+            CITask.OnTaskProcessExecuteFailed += (sender, e) => Task.Factory.StartNew(() =>
             {
-                // TODO
-            };
-            CITask.OnTaskFinished += (sender, e) =>
+                UpdateStatus(e.Id, CITaskStatus.Failing, e.Time);
+                var task = sender as CITask;
+                task.Dispose();
+                Building.Remove(task);
+                HandleResourceFree();
+            });
+            CITask.OnTaskFinished += (sender, e) => Task.Factory.StartNew(() =>
             {
-                // TODO
-            };
+                UpdateStatus(e.Id, CITaskStatus.Passing, e.Time);
+                var task = sender as CITask;
+                task.Dispose();
+                Building.Remove(task);
+                HandleResourceFree();
+            });
         }
         #endregion
 
@@ -73,6 +82,28 @@ namespace PipeCI.TaskDispatcher.NodeSide
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Handle the task pushed event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NodeManager_OnTaskPushed(object sender, TaskPushedEventArgs e)
+        {
+            HandleResourceFree();
+        }
+
+        /// <summary>
+        /// Handle the queue when there are some free resources.
+        /// </summary>
+        private void HandleResourceFree()
+        {
+            if (Building.Count >= MaxThreadsCount || Queued.Count == 0)
+                return;
+            var task = Queued.Dequeue();
+            task.Execute();
+            Building.Add(task);
+        }
+
         /// <summary>
         /// Push a CI task into the tasks queue.
         /// </summary>
@@ -156,10 +187,6 @@ namespace PipeCI.TaskDispatcher.NodeSide
             {
                 return true;
             }
-            else if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                return false;
-            }
             else
             {
                 ErrorCount++;
@@ -170,6 +197,38 @@ namespace PipeCI.TaskDispatcher.NodeSide
         public Task<bool> OutputAsync(Output output)
         {
             return Task.Factory.StartNew(() => Output(output));
+        }
+
+        /// <summary>
+        /// Update the ci task status to the center server.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public bool UpdateStatus(string id, CITaskStatus status, DateTime time)
+        {
+            var client = Client;
+            var task = client.PostAsync($"/api-node/result/{id}", new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                { "status", status.ToString() },
+                { "time", time.ToString("yyyy-MM-dd HH:mm:ss.ffffff")}
+            }));
+            task.Wait();
+            var result = task.Result;
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else
+            {
+                ErrorCount++;
+                return false;
+            }
+        }
+
+        public Task<bool> UpdateStatusAsync(string id, CITaskStatus status, DateTime time)
+        {
+            return Task.Factory.StartNew(() => UpdateStatus(id, status, time));
         }
         #endregion
 

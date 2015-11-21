@@ -22,9 +22,10 @@ namespace PipeCI.TaskDispatcher.NodeSide
         /// Begin execute this task.
         /// </summary>
         /// <param name="execute"></param>
-        public void Execute(Action execute)
+        public void Execute(Action execute = null)
         {
-            execute();
+            if (execute != null)
+                execute();
             OnTaskFinished(this, new TaskFinishedEventArgs { Id = this.Id });
         }
 
@@ -111,6 +112,7 @@ namespace PipeCI.TaskDispatcher.NodeSide
                             {
                                 process.Kill();
                                 OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Error, Text = $"The process has been killed, because the time which cost by the process is so long. The server limited time of this process to be {TimeLimit} ms." });
+                                OnTaskProcessExecuteFailed(this, new TaskProcessExecuteFailed { Error = $"The process has been killed, because the time which cost by the process is so long. The server limited time of this process to be {TimeLimit} ms.", Id = this.Id, Time = DateTime.Now });
                                 Processes.Remove(process);
                                 return false;
                             }
@@ -118,12 +120,14 @@ namespace PipeCI.TaskDispatcher.NodeSide
                         if (process.ExitCode == 0)
                         {
                             OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process has exited with the code 0." });
+                            OnTaskFinished(this, new TaskFinishedEventArgs { Id = this.Id, Time = DateTime.Now });
                             Processes.Remove(process);
                             return true;
                         }
                         else
                         {
                             OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process has exited with the code {process.ExitCode}." });
+                            OnTaskProcessExecuteFailed(this, new TaskProcessExecuteFailed { Error = $"{StandardError}\r\nThe process has exited with the code {process.ExitCode}.", Id = this.Id, Time = DateTime.Now });
                             Processes.Remove(process);
                             return false;
                         }
@@ -132,6 +136,7 @@ namespace PipeCI.TaskDispatcher.NodeSide
                 catch (Exception e)
                 {
                     OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process has crashed with the following messages: \r\n" + e.ToString() });
+                    OnTaskProcessExecuteFailed(this, new TaskProcessExecuteFailed { Error = e.ToString(), Id = this.Id, Time = DateTime.Now });
                     return false;
                 }
             });
@@ -139,6 +144,7 @@ namespace PipeCI.TaskDispatcher.NodeSide
         #endregion
 
         #region Events
+        public static event Action<object, TaskStartBuildingEventArgs> OnTaskStartBuilding;
         public static event Action<object, TaskFinishedEventArgs> OnTaskFinished;
         public static event Action<object, TaskProcessOutputedEventArgs> OnTaskProcessOutputed;
         public static event Action<object, TaskProcessExecuteFailed> OnTaskProcessExecuteFailed;
