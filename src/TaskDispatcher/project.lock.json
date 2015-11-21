@@ -314,7 +314,7 @@
           "ref/dotnet5.4/System.Diagnostics.Debug.dll": {}
         }
       },
-      "System.Diagnostics.Process/4.1.0-rc2-23517": {
+      "System.Diagnostics.Process/4.1.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
@@ -1003,7 +1003,7 @@
           "ref/dotnet/_._": {}
         }
       },
-      "runtime.win7.System.Diagnostics.Process/4.1.0-rc2-23517": {
+      "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23516": {
         "type": "package",
         "compile": {
           "ref/dotnet/_._": {}
@@ -1139,7 +1139,7 @@
           "ref/dotnet5.4/System.Diagnostics.Debug.dll": {}
         }
       },
-      "System.Diagnostics.Process/4.1.0-rc2-23517": {
+      "System.Diagnostics.Process/4.1.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
@@ -1624,7 +1624,7 @@
           "ref/dotnet/_._": {}
         }
       },
-      "runtime.win7.System.Diagnostics.Process/4.1.0-rc2-23517": {
+      "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23516": {
         "type": "package",
         "compile": {
           "ref/dotnet/_._": {}
@@ -1760,7 +1760,7 @@
           "ref/dotnet5.4/System.Diagnostics.Debug.dll": {}
         }
       },
-      "System.Diagnostics.Process/4.1.0-rc2-23517": {
+      "System.Diagnostics.Process/4.1.0-beta-23516": {
         "type": "package",
         "dependencies": {
           "System.IO": "4.0.0",
@@ -2292,14 +2292,14 @@
         "runtimes/win8-aot/lib/netcore50/System.Diagnostics.Debug.dll"
       ]
     },
-    "runtime.win7.System.Diagnostics.Process/4.1.0-rc2-23517": {
+    "runtime.win7.System.Diagnostics.Process/4.1.0-beta-23516": {
       "type": "package",
       "serviceable": true,
-      "sha512": "VDge1beRHDrOgsbXxPmbVPAzyAbeAQGka9kiQRs2VOGGhwvpRiPKClFpvJ2tiIzuatENltpPngwOU603euso8Q==",
+      "sha512": "qCCXX+OG6430kLtN/wyjeLTTiJvOIKB2G+qBvhSqVLWe5ZTiEiSnweKUzdi7raXL0te0WfPE5tf8FuKcEKPnIA==",
       "files": [
         "ref/dotnet/_._",
-        "runtime.win7.System.Diagnostics.Process.4.1.0-rc2-23517.nupkg",
-        "runtime.win7.System.Diagnostics.Process.4.1.0-rc2-23517.nupkg.sha512",
+        "runtime.win7.System.Diagnostics.Process.4.1.0-beta-23516.nupkg",
+        "runtime.win7.System.Diagnostics.Process.4.1.0-beta-23516.nupkg.sha512",
         "runtime.win7.System.Diagnostics.Process.nuspec",
         "runtimes/win7/lib/dotnet5.5/System.Diagnostics.Process.dll",
         "runtimes/win7/lib/net/_._",
@@ -2672,10 +2672,10 @@
         "System.Diagnostics.Debug.nuspec"
       ]
     },
-    "System.Diagnostics.Process/4.1.0-rc2-23517": {
+    "System.Diagnostics.Process/4.1.0-beta-23516": {
       "type": "package",
       "serviceable": true,
-      "sha512": "ypsM8KezRxQ4fDGgOS5OkIPySwHDsK78NHm4vM9YPMgzgNenvr+WwtHKOPljXxa8XyuM2ppAguTIX51KZDsZ6g==",
+      "sha512": "uXV0y5jByAnFDoQRHVpsMvqzjYeIhSSiKP0U++erIae/9DFULDlhxpzJsKVC2BU44QGyGoShUbgxBuFyMr3gPA==",
       "files": [
         "lib/MonoAndroid10/_._",
         "lib/MonoTouch10/_._",
@@ -2712,8 +2712,8 @@
         "ref/xamarinios10/_._",
         "ref/xamarinmac20/_._",
         "runtime.json",
-        "System.Diagnostics.Process.4.1.0-rc2-23517.nupkg",
-        "System.Diagnostics.Process.4.1.0-rc2-23517.nupkg.sha512",
+        "System.Diagnostics.Process.4.1.0-beta-23516.nupkg",
+        "System.Diagnostics.Process.4.1.0-beta-23516.nupkg.sha512",
         "System.Diagnostics.Process.nuspec"
       ]
     },
@@ -3940,7 +3940,7 @@
       "System.Runtime >= 4.0.21-beta-23516",
       "System.Threading >= 4.0.11-beta-23516",
       "System.Net.Http >= 4.0.1-beta-23516",
-      "System.Diagnostics.Process >= 4.1.0-rc2-23516"
+      "System.Diagnostics.Process >= 4.1.0-beta-23516"
     ]
   }
 }

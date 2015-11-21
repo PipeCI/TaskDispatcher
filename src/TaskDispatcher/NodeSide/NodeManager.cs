@@ -111,6 +111,7 @@ namespace PipeCI.TaskDispatcher.NodeSide
         public void PushTask(CITask task)
         {
             Queued.Enqueue(task);
+            OnTaskPushed(this, new TaskPushedEventArgs { Id = task.Id });
         }
 
         /// <summary>
