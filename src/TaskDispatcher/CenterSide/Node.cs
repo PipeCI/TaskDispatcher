@@ -159,6 +159,11 @@ namespace PipeCI.TaskDispatcher.CenterSide
             return Task.Factory.StartNew(() => IsInNode(id));
         }
 
+        /// <summary>
+        /// Send the task into this node
+        /// </summary>
+        /// <param name="citask"></param>
+        /// <returns></returns>
         public bool SendTask(Abstractions.CITask citask)
         {
             var client = Client;
@@ -185,6 +190,14 @@ namespace PipeCI.TaskDispatcher.CenterSide
                     return false;
             }
         }
+
+        public Task<bool> SendTaskAsync(CITask citask)
+        {
+            return Task.Factory.StartNew(() => SendTask(citask));
+        }
+        #endregion
+
+        #region Events
         #endregion
     }
 }
