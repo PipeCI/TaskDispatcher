@@ -21,12 +21,6 @@ namespace PipeCI.TaskDispatcher.Abstractions
         #endregion
 
         #region Methods
-        public abstract bool HeartBeat();
-
-        public abstract void UpdateNodeInfo();
-
-        public abstract bool SendTask(CITask task);
-
         public abstract bool IsInQueue(string id);
 
         public abstract bool IsInBuilding(string id);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace PipeCI.TaskDispatcher.CenterSide
@@ -54,14 +55,14 @@ namespace PipeCI.TaskDispatcher.CenterSide
         /// Test the node is online or offline
         /// </summary>
         /// <returns></returns>
-        public override bool HeartBeat()
+        public bool HeartBeat()
         {
             try
             {
                 var client = Client;
                 client.Timeout = new TimeSpan(0, 0, 5);
                 var begin = DateTime.Now;
-                var task = client.PostAsync($"/api/heartbeat", new FormUrlEncodedContent(new Dictionary<string, string> { }));
+                var task = client.PostAsync($"/api/heart-beat", new FormUrlEncodedContent(new Dictionary<string, string> { }));
                 task.Wait();
                 var result = task.Result;
                 if (result.StatusCode == System.Net.HttpStatusCode.OK)
@@ -89,24 +90,100 @@ namespace PipeCI.TaskDispatcher.CenterSide
             return Task.Factory.StartNew(() => HeartBeat());
         }
 
+        /// <summary>
+        /// Check the task which is in building, is in this node or not.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public override bool IsInBuilding(string id)
         {
-            throw new NotImplementedException();
+            var client = Client;
+            client.Timeout = new TimeSpan(0, 0, 5);
+            var task = client.PostAsync($"/api/is-in-building/{id}", new FormUrlEncodedContent(new Dictionary<string, string> { }));
+            task.Wait();
+            var result = task.Result;
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorCount++;
+                return false;
+            }
         }
 
+        public Task<bool> IsInBuildingAsync(string id)
+        {
+            return Task.Factory.StartNew(()=> IsInBuilding(id));
+        }
+
+        /// <summary>
+        ///  Check the task which is in the queue of this node.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public override bool IsInQueue(string id)
         {
-            throw new NotImplementedException();
+            var client = Client;
+            client.Timeout = new TimeSpan(0, 0, 5);
+            var task = client.PostAsync($"/api/is-in-queue/{id}", new FormUrlEncodedContent(new Dictionary<string, string> { }));
+            task.Wait();
+            var result = task.Result;
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorCount++;
+                return false;
+            }
         }
 
-        public override bool SendTask(Abstractions.CITask task)
+        public Task<bool> IsInQueueAsync(string id)
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => IsInQueue(id));
         }
 
-        public override void UpdateNodeInfo()
+        public Task<bool> IsInNodeAsync(string id)
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => IsInNode(id));
+        }
+
+        public bool SendTask(Abstractions.CITask citask)
+        {
+            var client = Client;
+            using (var content = new MultipartFormDataContent("Upload----" + DateTime.Now.ToString("MM-dd-yyyy HH:mm:ss")))
+            {
+                if (citask.ZipArchive != null && citask.ZipArchive.Length > 0)
+                    content.Add(new StreamContent(new MemoryStream(citask.ZipArchive)), "ZipArchive", "archive.zip");
+                content.Add(new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    { "id", citask.Id },
+                    { "Version", citask.Version },
+                    { "Uri", citask.Uri },
+                    { "Branch", citask.Branch },
+                    { "RestoreMethod", citask.RestoreMethod.ToString() },
+                    { "Dependency", citask.Dependency },
+                    { "LastYamlHash", citask.LastYmlHash }
+                }));
+                var task = client.PostAsync("/api/ci/newci", content);
+                task.Wait();
+                var result = task.Result;
+                if (result.StatusCode == System.Net.HttpStatusCode.OK)
+                    return true;
+                else
+                    return false;
+            }
         }
         #endregion
     }

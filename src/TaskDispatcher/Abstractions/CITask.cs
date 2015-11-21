@@ -32,5 +32,7 @@ namespace PipeCI.TaskDispatcher.Abstractions
         public string Dependency { get; set; }
 
         public string LastYmlHash { get; set; }
+
+        public string Version { get; set; }
     }
 }
