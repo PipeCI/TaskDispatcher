@@ -176,7 +176,7 @@ namespace PipeCI.TaskDispatcher.CenterSide
                     { "Dependency", citask.Dependency },
                     { "LastYamlHash", citask.LastYmlHash }
                 }));
-                var task = client.PostAsync("/api/ci/newci", content);
+                var task = client.PostAsync("/api/run-task", content);
                 task.Wait();
                 var result = task.Result;
                 if (result.StatusCode == System.Net.HttpStatusCode.OK)
