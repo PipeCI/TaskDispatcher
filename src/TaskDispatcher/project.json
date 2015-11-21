@@ -1,4 +1,5 @@
 ﻿{
+  "title": "PipeCI.TaskDispatcher",
   "version": "1.0.0-*",
   "description": "Pipe-CI Task Dispatcher",
   "authors": [ "Amamiya Yuuko", "wph95" ],
