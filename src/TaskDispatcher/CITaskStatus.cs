@@ -11,6 +11,7 @@ namespace PipeCI.TaskDispatcher
         Failing,
         Error,
         Building,
-        Pending
+        Pending,
+        Ignored
     }
 }

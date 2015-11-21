@@ -21,14 +21,14 @@ namespace PipeCI.TaskDispatcher
 
         public byte[] ZipArchive { get; set; }
 
-        public OSType[] Platforms { get; set; }
-
         public CITaskStatus Status { get; set; }
 
         public DateTime? Begin { get; set; }
 
         public DateTime? End { get; set; }
 
+        public string Branch { get; set; }
 
+        public string Dependency { get; set; }
     }
 }
