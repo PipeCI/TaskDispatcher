@@ -1,10 +1,10 @@
 ﻿{
   "version": "1.0.0-*",
-  "description": "TaskDispatcher Class Library",
-  "authors": [ "Yuuko" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+  "description": "Pipe-CI Task Dispatcher",
+  "authors": [ "Amamiya Yuuko", "wph95" ],
+  "tags": [ "Continuous Integration", "Pipe CI" ],
+  "projectUrl": "https://github.com/PipeCI/TaskDispatcher",
+  "licenseUrl": "https://github.com/PipeCI/TaskDispatcher/blob/dev/LICENSE",
 
   "dependencies": {
     "CodeComb.Package": "2.0.0-*",
@@ -14,18 +14,19 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
-        "System.Net": "4.0.0.0",
-        "System.Net.Http": "4.0.0.0"
+        "System.Net": "",
+        "System.Net.Http": ""
       }
     },
     "dotnet5.4": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-*",
-        "System.Collections": "4.0.11-*",
-        "System.Linq": "4.0.1-*",
-        "System.Runtime": "4.0.21-*",
-        "System.Threading": "4.0.11-*",
-        "System.Net.Http": "4.0.1-*"
+        "Microsoft.CSharp": "4.0.1-beta-23516",
+        "System.Collections": "4.0.11-beta-23516",
+        "System.Linq": "4.0.1-beta-23516",
+        "System.Runtime": "4.0.21-beta-23516",
+        "System.Threading": "4.0.11-beta-23516",
+        "System.Net.Http": "4.0.1-beta-23516",
+        "System.Diagnostics.Process": "4.1.0-rc2-23516"
       }
     }
   }

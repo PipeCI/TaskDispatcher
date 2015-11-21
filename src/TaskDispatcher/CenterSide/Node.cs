@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.IO;
@@ -11,7 +10,7 @@ namespace PipeCI.TaskDispatcher.CenterSide
     public class Node : Abstractions.Node
     {
         #region Properties
-        protected HttpClient Client
+        protected virtual HttpClient Client
         {
             get
             {
@@ -195,6 +194,8 @@ namespace PipeCI.TaskDispatcher.CenterSide
         {
             return Task.Factory.StartNew(() => SendTask(citask));
         }
+
+
         #endregion
 
         #region Events

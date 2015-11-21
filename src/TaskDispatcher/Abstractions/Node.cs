@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CodeComb.Package;
-
-namespace PipeCI.TaskDispatcher.Abstractions
+﻿namespace PipeCI.TaskDispatcher.Abstractions
 {
     public abstract class Node : NodeInfo
     {
