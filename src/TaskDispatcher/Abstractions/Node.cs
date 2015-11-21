@@ -6,26 +6,16 @@ using CodeComb.Package;
 
 namespace PipeCI.TaskDispatcher.Abstractions
 {
-    public abstract class Node
+    public abstract class Node : NodeInfo
     {
         #region Properties
         public string Alias { get; set; }
 
-        public string PrivateKey { get; set; }
-
-        public int Ping { get; set; }
-
-        public int CurrentTaskCount { get; set; }
-
-        public int QueuedTaskCount { get; set; }
-
-        public OSType OS { get; set; }
-
         public string Address { get; set; }
 
-        public int Port { get; set; }
+        public string Port { get; set; }
 
-        public ulong LostConnectionCount { get; set; } = 1;
+        public string PrivateKey { get; set; }
 
         public ulong ErrorCount { get; set; }
         #endregion

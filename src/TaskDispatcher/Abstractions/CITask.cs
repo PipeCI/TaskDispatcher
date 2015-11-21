@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CodeComb.Package;
 
-namespace PipeCI.TaskDispatcher
+namespace PipeCI.TaskDispatcher.Abstractions
 {
-    public class CITask
+    public abstract class CITask
     {
         public CITask()
         {
@@ -17,7 +17,7 @@ namespace PipeCI.TaskDispatcher
 
         public RestoreMethod RestoreMethod { get; set; }
 
-        public string Url { get; set; }
+        public string Uri { get; set; }
 
         public byte[] ZipArchive { get; set; }
 
@@ -30,5 +30,7 @@ namespace PipeCI.TaskDispatcher
         public string Branch { get; set; }
 
         public string Dependency { get; set; }
+
+        public string LastYmlHash { get; set; }
     }
 }
