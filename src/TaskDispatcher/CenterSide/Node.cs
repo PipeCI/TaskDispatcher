@@ -72,6 +72,7 @@ namespace PipeCI.TaskDispatcher.CenterSide
                     this.OS = json.OS;
                     this.CurrentTaskCount = json.CurrentTaskCount;
                     this.QueuedTaskCount = json.CurrentTaskCount;
+                    this.MaxThreadsCount = json.MaxThreadsCount;
                     this.Ping = Convert.ToInt32((DateTime.Now - begin).TotalMilliseconds);
                     return true;
                 }

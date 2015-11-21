@@ -4,6 +4,8 @@ namespace PipeCI.TaskDispatcher.Abstractions
 {
     public class NodeInfo
     {
+        public virtual int MaxThreadsCount { get; set; }
+
         public virtual int CurrentTaskCount { get; set; }
 
         public virtual int QueuedTaskCount { get; set; }

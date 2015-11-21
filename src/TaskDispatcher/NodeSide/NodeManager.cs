@@ -3,13 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 using PipeCI.TaskDispatcher.Abstractions;
 using PipeCI.TaskDispatcher.NodeSide.EventArgs;
 
 namespace PipeCI.TaskDispatcher.NodeSide
 {
-    public class Node : Abstractions.Node
+    public class NodeManager : Node
     {
+        #region Constructor
+        public NodeManager(IConfiguration config)
+        {
+            this.ServerAddress = config["Address"];
+            this.ServerPort = Convert.ToInt32(config["Port"]);
+            this.MaxThreadsCount = Convert.ToInt32(config["MaxThreadsCount"]);
+            this.PrivateKey = config["PrivateKey"];
+            CITask.OnTaskProcessOutputed += (sender, e) => 
+            {
+                Output(e);
+            };
+            CITask.OnTaskProcessExecuteFailed += (sender, e) =>
+            {
+                // TODO
+            };
+            CITask.OnTaskFinished += (sender, e) =>
+            {
+                // TODO
+            };
+        }
+        #endregion
+
         #region Properties
         public string ServerAddress { get; set; }
         public int ServerPort { get; set; }
@@ -25,6 +48,28 @@ namespace PipeCI.TaskDispatcher.NodeSide
         }
         public virtual CITaskQueue Queued { get; protected set; } = new CITaskQueue();
         public virtual CITaskQueue Building { get; protected set; } = new CITaskQueue();
+        public override int CurrentTaskCount
+        {
+            get
+            {
+                return Building.Count;
+            }
+            set
+            {
+                throw new NotSupportedException("Building task count is a read-only variable.");
+            }
+        }
+        public override int QueuedTaskCount
+        {
+            get
+            {
+                return Queued.Count;
+            }
+            set
+            {
+                throw new NotSupportedException("Queued task count is a read-only variable.");
+            }
+        }
         #endregion
 
         #region Methods
@@ -34,7 +79,6 @@ namespace PipeCI.TaskDispatcher.NodeSide
         /// <param name="task"></param>
         public void PushTask(CITask task)
         {
-            task.Node = this;
             Queued.Enqueue(task);
         }
 
