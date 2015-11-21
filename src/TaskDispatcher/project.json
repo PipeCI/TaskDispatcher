@@ -29,7 +29,7 @@
         "System.Runtime": "4.0.21-beta-23516",
         "System.Threading": "4.0.11-beta-23516",
         "System.Net.Http": "4.0.1-beta-23516",
-        "System.Diagnostics.Process": "4.1.0-rc2-23516"
+        "System.Diagnostics.Process": "4.1.0-beta-23516"
       }
     }
   }
