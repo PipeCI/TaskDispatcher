@@ -51,20 +51,22 @@ namespace PipeCI.TaskDispatcher.NodeSide
         {
             return Task.Factory.StartNew(() =>
             {
-                var process = new Process();
-                process.StartInfo.FileName = Filename;
-                process.StartInfo.Arguments = Arguments;
-                process.StartInfo.WorkingDirectory = WorkingDirectory;
-                if (AdditionalEnvironmentVariables != null)
+                try
                 {
-#if NET451
-                    foreach(var x in AdditionalEnvironmentVariables)
+                    var process = new Process();
+                    process.StartInfo.FileName = Filename;
+                    process.StartInfo.Arguments = Arguments;
+                    process.StartInfo.WorkingDirectory = WorkingDirectory;
+                    if (AdditionalEnvironmentVariables != null)
                     {
-                        if (process.StartInfo.EnvironmentVariables.ContainsKey(x.Key))
-                            process.StartInfo.EnvironmentVariables[x.Key] = process.StartInfo.EnvironmentVariables[x.Key].TrimEnd(' ').TrimEnd(';') + ';' + x.Value;
-                        else
-                            process.StartInfo.EnvironmentVariables.Add(x.Key, x.Value);
-                    }
+#if NET451
+                        foreach (var x in AdditionalEnvironmentVariables)
+                        {
+                            if (process.StartInfo.EnvironmentVariables.ContainsKey(x.Key))
+                                process.StartInfo.EnvironmentVariables[x.Key] = process.StartInfo.EnvironmentVariables[x.Key].TrimEnd(' ').TrimEnd(';') + ';' + x.Value;
+                            else
+                                process.StartInfo.EnvironmentVariables.Add(x.Key, x.Value);
+                        }
 #else
                     foreach (var x in AdditionalEnvironmentVariables)
                     {
@@ -74,53 +76,59 @@ namespace PipeCI.TaskDispatcher.NodeSide
                             process.StartInfo.Environment.Add(x.Key, x.Value);
                     }
 #endif
-                }
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardInput = true;
-                process.OutputDataReceived += (sender, e) =>
-                {
-                    StandardMixed += e.Data + Environment.NewLine;
-                    StandardOutput += e.Data + Environment.NewLine;
-                    if (OnTaskProcessOutputed != null)
-                        OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Text = e.Data, Time = DateTime.Now, Type = OutputType.Output });
-                };
-                process.ErrorDataReceived += (sender, e) =>
-                {
-                    StandardMixed += e.Data + Environment.NewLine;
-                    StandardError += e.Data + Environment.NewLine;
-                    if (OnTaskProcessOutputed != null)
-                        OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Text = e.Data, Time = DateTime.Now, Type = OutputType.Error });
-                };
-                Processes.Add(process);
-                process.Start();
-                if (TimeLimit == 0)
-                    process.WaitForExit();
-                else
-                {
-                    if (!process.WaitForExit(TimeLimit))
+                    }
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardInput = true;
+                    process.OutputDataReceived += (sender, e) =>
                     {
-                        process.Kill();
-                        Node.Output(new Output { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Error, Text = $"The process has been killed, because the time which cost by the process is so long. The server limited time of this process to be {TimeLimit} ms." });
+                        StandardMixed += e.Data + Environment.NewLine;
+                        StandardOutput += e.Data + Environment.NewLine;
+                        if (OnTaskProcessOutputed != null)
+                            OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Text = e.Data, Time = DateTime.Now, Type = OutputType.Output });
+                    };
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        StandardMixed += e.Data + Environment.NewLine;
+                        StandardError += e.Data + Environment.NewLine;
+                        if (OnTaskProcessOutputed != null)
+                            OnTaskProcessOutputed(this, new TaskProcessOutputedEventArgs { TaskId = this.Id, Text = e.Data, Time = DateTime.Now, Type = OutputType.Error });
+                    };
+                    Processes.Add(process);
+                    process.Start();
+                    if (TimeLimit == 0)
+                        process.WaitForExit();
+                    else
+                    {
+                        if (!process.WaitForExit(TimeLimit))
+                        {
+                            process.Kill();
+                            Node.Output(new Output { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Error, Text = $"The process has been killed, because the time which cost by the process is so long. The server limited time of this process to be {TimeLimit} ms." });
+                            process.Dispose();
+                            Processes.Remove(process);
+                            return false;
+                        }
+                    }
+                    if (process.ExitCode == 0)
+                    {
+                        Node.Output(new Output { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process has exited with the code 0." });
+                        process.Dispose();
+                        Processes.Remove(process);
+                        return true;
+                    }
+                    else
+                    {
+                        Node.Output(new Output { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process has exited with the code {process.ExitCode}." });
                         process.Dispose();
                         Processes.Remove(process);
                         return false;
                     }
                 }
-                if (process.ExitCode == 0)
+                catch(Exception e)
                 {
-                    Node.Output(new Output { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process exited with the code 0." });
-                    process.Dispose();
-                    Processes.Remove(process);
-                    return true;
-                }
-                else
-                {
-                    Node.Output(new Output { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process exited with the code {process.ExitCode}." });
-                    process.Dispose();
-                    Processes.Remove(process);
+                    Node.Output(new Output { TaskId = this.Id, Time = DateTime.Now, Type = OutputType.Successful, Text = $"The process has crashed with the following messages: \r\n" + e.ToString() });
                     return false;
                 }
             });
@@ -131,6 +139,6 @@ namespace PipeCI.TaskDispatcher.NodeSide
         public static event Action<object, TaskFinishedEventArgs> OnTaskFinished;
         public static event Action<object, TaskProcessOutputedEventArgs> OnTaskProcessOutputed;
         public static event Action<object, TaskProcessExecuteFailed> OnTaskProcessExecuteFailed;
-#endregion
+        #endregion
     }
 }
