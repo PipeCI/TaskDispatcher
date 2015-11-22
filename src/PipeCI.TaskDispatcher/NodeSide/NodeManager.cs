@@ -80,6 +80,11 @@ namespace PipeCI.TaskDispatcher.NodeSide
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Detecting the task dependence relation.
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
         private bool IsAbleToRun(CITask task)
         {
             if (string.IsNullOrEmpty(task.Dependency))
