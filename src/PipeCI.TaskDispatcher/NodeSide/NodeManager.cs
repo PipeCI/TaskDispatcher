@@ -14,8 +14,8 @@ namespace PipeCI.TaskDispatcher.NodeSide
         #region Constructor
         public NodeManager(IConfiguration config)
         {
-            this.ServerAddress = config["Address"];
-            this.ServerPort = Convert.ToInt32(config["Port"]);
+            this.Address = config["Address"];
+            this.Port = Convert.ToInt32(config["Port"]);
             this.MaxThreadsCount = Convert.ToInt32(config["MaxThreadsCount"]);
             this.PrivateKey = config["PrivateKey"];
             OnTaskPushed += NodeManager_OnTaskPushed;
@@ -43,14 +43,12 @@ namespace PipeCI.TaskDispatcher.NodeSide
         #endregion
 
         #region Properties
-        public string ServerAddress { get; set; }
-        public int ServerPort { get; set; }
         protected virtual HttpClient Client
         {
             get
             {
                 var client = new HttpClient();
-                client.BaseAddress = new Uri($"http://{ServerAddress}:{ServerPort}");
+                client.BaseAddress = new Uri($"http://{Address}:{Port}");
                 client.DefaultRequestHeaders.Add("private-key", PrivateKey);
                 return client;
             }
@@ -82,6 +80,35 @@ namespace PipeCI.TaskDispatcher.NodeSide
         #endregion
 
         #region Methods
+        private bool IsAbleToRun(CITask task)
+        {
+            if (string.IsNullOrEmpty(task.Dependency))
+                return true;
+            var status = CheckStatus(task.Id);
+            if (status == CITaskStatus.Passing)
+            {
+                return true;
+            }
+            else if (status == CITaskStatus.Building || status == CITaskStatus.Pending)
+            {
+                task.WaitingCount++;
+                Task.Factory.StartNew(() =>
+                {
+                    System.Threading.Thread.Sleep(3000);
+                    Queued.Enqueue(task);
+                    OnTaskPushed(this, new TaskPushedEventArgs { Id = task.Id });
+                });
+                return false;
+            }
+            else
+            {
+                Output(new Output { TaskId = task.Id, Text = "Due to the task on which depended by this task is failing, this task has been aborted.", Type = OutputType.Error, Time = DateTime.Now });
+                UpdateStatus(task.Id, CITaskStatus.Failing, DateTime.Now);
+                return false;
+            }
+            
+        }
+
         /// <summary>
         /// Handle the task pushed event.
         /// </summary>
@@ -100,8 +127,11 @@ namespace PipeCI.TaskDispatcher.NodeSide
             if (Building.Count >= MaxThreadsCount || Queued.Count == 0)
                 return;
             var task = Queued.Dequeue();
-            task.Execute();
-            Building.Add(task);
+            if (IsAbleToRun(task))
+            {
+                task.Execute();
+                Building.Add(task);
+            }
         }
 
         /// <summary>
@@ -209,7 +239,7 @@ namespace PipeCI.TaskDispatcher.NodeSide
         public bool UpdateStatus(string id, CITaskStatus status, DateTime time)
         {
             var client = Client;
-            var task = client.PostAsync($"/api-node/result/{id}", new FormUrlEncodedContent(new Dictionary<string, string>
+            var task = client.PostAsync($"/api-node/status/{id}", new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 { "status", status.ToString() },
                 { "time", time.ToString("yyyy-MM-dd HH:mm:ss.ffffff")}
@@ -230,6 +260,35 @@ namespace PipeCI.TaskDispatcher.NodeSide
         public Task<bool> UpdateStatusAsync(string id, CITaskStatus status, DateTime time)
         {
             return Task.Factory.StartNew(() => UpdateStatus(id, status, time));
+        }
+
+        /// <summary>
+        /// Get the status of the specific task.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public CITaskStatus CheckStatus(string id)
+        {
+            var client = Client;
+            var task = client.PostAsync($"/api-node/check-status/{id}", new FormUrlEncodedContent(new Dictionary<string, string> { }));
+            task.Wait();
+            var result = task.Result;
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var task2 = result.Content.ReadAsStringAsync();
+                task2.Wait();
+                return (CITaskStatus)Enum.Parse(typeof(CITaskStatus),task2.Result);
+            }
+            else
+            {
+                ErrorCount++;
+                return CITaskStatus.Error;
+            }
+        }
+
+        public Task<CITaskStatus> CheckStatusAsync(string id)
+        {
+            return Task.Factory.StartNew(() => CheckStatus(id));
         }
         #endregion
 

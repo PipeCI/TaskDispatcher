@@ -15,6 +15,7 @@ namespace PipeCI.TaskDispatcher.NodeSide
         public string StandardError { get; set; } = "";
         public string StandardMixed { get; set; } = "";
         public List<Process> Processes { get; set; }
+        public ulong WaitingCount { get; set; }
         #endregion
 
         #region Methods
