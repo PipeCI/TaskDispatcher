@@ -15,11 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 		LICENSE = LICENSE
 		makefile.shade = makefile.shade
-		NuGet.Config = NuGet.Config
+		NuGet.config = NuGet.config
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TaskDispatcher", "src\PipeCI.TaskDispatcher\PipeCI.TaskDispatcher.xproj", "{37D90811-7D3E-4321-BCE0-B8839DFC752D}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "PipeCI.TaskDispatcher", "src\PipeCI.TaskDispatcher\PipeCI.TaskDispatcher.xproj", "{37D90811-7D3E-4321-BCE0-B8839DFC752D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

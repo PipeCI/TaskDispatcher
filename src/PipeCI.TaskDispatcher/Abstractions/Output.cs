@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using CodeComb.Package;
 
 namespace PipeCI.TaskDispatcher.Abstractions
 {
@@ -10,6 +8,8 @@ namespace PipeCI.TaskDispatcher.Abstractions
         public string TaskId { get; set; }
 
         public OutputType Type { get; set; }
+
+        public OSType OS { get; set; }
 
         public string Text { get; set; }
 

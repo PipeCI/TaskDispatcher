@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.IO;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
+using CodeComb.Package;
 
 namespace PipeCI.TaskDispatcher.CenterSide
 {
@@ -24,6 +27,8 @@ namespace PipeCI.TaskDispatcher.CenterSide
         public int Ping { get; set; }
 
         public ulong LostConnectionCount { get; set; } = 1;
+
+        public bool Enabled { get; set; }
         #endregion
 
         #region Methods
@@ -178,8 +183,7 @@ namespace PipeCI.TaskDispatcher.CenterSide
                     { "Uri", citask.Uri },
                     { "Branch", citask.Branch },
                     { "RestoreMethod", citask.RestoreMethod.ToString() },
-                    { "Dependency", citask.Dependency },
-                    { "LastYamlHash", citask.LastYmlHash }
+                    { "Dependency", citask.Dependency }
                 }));
                 var task = client.PostAsync("/api/run-task", content);
                 task.Wait();

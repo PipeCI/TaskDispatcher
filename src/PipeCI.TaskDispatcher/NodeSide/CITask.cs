@@ -61,6 +61,8 @@ namespace PipeCI.TaskDispatcher.NodeSide
                 {
                     using (var process = new Process())
                     {
+                        if (OnTaskStartBuilding != null)
+                            OnTaskStartBuilding(this, new TaskStartBuildingEventArgs { Id = this.Id, Time = DateTime.Now });
                         process.StartInfo.FileName = Filename;
                         process.StartInfo.Arguments = Arguments;
                         process.StartInfo.WorkingDirectory = WorkingDirectory;

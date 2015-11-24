@@ -203,6 +203,26 @@ namespace PipeCI.TaskDispatcher.NodeSide
                 return false;
         }
 
+        public bool SendYmlHash(string id, string hash)
+        {
+            var client = Client;
+            var task = client.PostAsync($"/api-node/hash-yml/{id}", new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                { "hash", hash }
+            }));
+            task.Wait();
+            var result = task.Result;
+            if (result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else
+            {
+                ErrorCount++;
+                return false;
+            }
+        }
+
         /// <summary>
         /// Send the outputs of process to the center server.
         /// </summary>
@@ -215,7 +235,8 @@ namespace PipeCI.TaskDispatcher.NodeSide
             {
                 { "text", output.Text },
                 { "time", output.Time.ToString("yyyy-MM-dd HH:mm:ss.ffffff") },
-                { "type", output.Type.ToString() }
+                { "type", output.Type.ToString() },
+                { "os", OS.ToString() }
             }));
             task.Wait();
             var result = task.Result;
