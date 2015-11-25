@@ -59,18 +59,12 @@ namespace PipeCI.TaskDispatcher.CenterSide
         public override async Task<bool> SendTaskAsync(CITask task)
         {
             var flag = true;
-            if (task.ProjectId == null || task.Project.Windows)
-            {
+            if (task.Windows)
                 flag = await task.SendToNode(GetFreeNode(OSType.Windows));
-            }
-            if (task.ProjectId == null || task.Project.Linux)
-            {
+            if (task.Linux)
                 flag = await task.SendToNode(GetFreeNode(OSType.Linux));
-            }
-            if (task.ProjectId == null || task.Project.OSX)
-            {
+            if (task.OSX)
                 flag = await task.SendToNode(GetFreeNode(OSType.OSX));
-            }
             return flag;
         }
 

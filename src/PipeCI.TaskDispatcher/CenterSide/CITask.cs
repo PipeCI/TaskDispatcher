@@ -12,10 +12,6 @@ namespace PipeCI.TaskDispatcher.CenterSide
 
         public bool OSX { get; set; }
 
-        public string ProjectId { get; set; }
-
-        public Project Project { get; set; }
-
         public string ShortId { get { return Id.Substring(0, 8); } }
 
         public DateTime Time { get; set; }

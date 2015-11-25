@@ -26,25 +26,17 @@ namespace PipeCI.TaskDispatcher.CenterSide
 
         public virtual Project DependencyProject { get; set; }
 
-        [MaxLength(128)]
-        public string LastYmlHash { get; set; }
-
         [MaxLength(64)]
         public string VersionRule { get; set; }
 
         public ulong CurrentVersion { get; set; }
 
-        public bool Linux { get; set; } = true;
-
-        public bool Windows { get; set; } = true;
-
-        public bool OSX { get; set; } = true;
-
         [NotMapped]
         public string Version { get { return string.Format(VersionRule, CurrentVersion); } }
 
-        public virtual ICollection<Project> BeDependedProjects { get; set; }
+        [MaxLength(64)]
+        public string YmlHash { get; set; }
 
-        public virtual ICollection<CITask> Tasks { get; set; } = new List<CITask>();
+        public virtual ICollection<CITaskWithProject> Tasks { get; set; } = new List<CITaskWithProject>();
     }
 }

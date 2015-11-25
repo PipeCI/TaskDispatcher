@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Entity;
+﻿using System.Collections.Generic;
+using Microsoft.Data.Entity;
 
 namespace PipeCI.TaskDispatcher.CenterSide
 {
@@ -42,7 +43,7 @@ namespace PipeCI.TaskDispatcher.CenterSide
 
         public static ModelBuilder SetupCITasks(this ModelBuilder self)
         {
-            return self.Entity<CITask>(e =>
+            return self.Entity<CITaskWithProject>(e =>
             {
                 e.Ignore(x => x.ShortId);
                 e.Property(x => x.Id).HasMaxLength(128);
@@ -56,7 +57,10 @@ namespace PipeCI.TaskDispatcher.CenterSide
                 e.HasIndex(x => x.OSX);
                 e.HasIndex(x => x.Linux);
                 e.HasIndex(x => x.Windows);
-                e.HasOne(x => x.DependencyTask).WithMany(x => x.BeDependedTasks).IsRequired(false).OnDelete(Microsoft.Data.Entity.Metadata.DeleteBehavior.SetNull);
+                e.HasOne(x => x.DependencyTask)
+                    .WithMany(x => x.BeDependedTasks)
+                    .IsRequired(false)
+                    .OnDelete(Microsoft.Data.Entity.Metadata.DeleteBehavior.SetNull);
             });
         }
 
@@ -64,10 +68,6 @@ namespace PipeCI.TaskDispatcher.CenterSide
         {
             return self.Entity<Project>(e =>
             {
-                e.HasIndex(x => x.OSX);
-                e.HasIndex(x => x.Linux);
-                e.HasIndex(x => x.Windows);
-                e.HasIndex(x => x.LastYmlHash);
                 e.HasMany(x => x.Tasks).WithOne(x => x.Project).IsRequired(false);
             });
         }
